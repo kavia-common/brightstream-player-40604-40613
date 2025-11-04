@@ -9,6 +9,12 @@ sub init()
     applyTheme()
 
     m.top.observeField("content", "onContentChanged")
+
+    ' Default focus to the Video node so transport keys work
+    if m.video <> invalid then m.video.setFocus(true)
+
+    ' Handle Back at component level too; Scene also handles it
+    m.top.observeField("keyEvent", "onKeyEvent")
 end sub
 
 sub applyTheme()
@@ -35,6 +41,14 @@ end sub
 
 ' Roku will handle Back button by bubbling key events to Scene normally.
 ' The parent scene can handle setting navAction=back via key handlers if needed.
+function onKeyEvent(key as string, press as boolean) as boolean
+    if not press then return false
+    if key = "back"
+        m.top.navAction = { target: "back" }
+        return true
+    end if
+    return false
+end function
 
 ' PUBLIC_INTERFACE
 ' Convert #RRGGBB to RGBA (opaque)

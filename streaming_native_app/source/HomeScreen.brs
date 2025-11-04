@@ -9,6 +9,9 @@ sub init()
     setupTitle()
     setupListStyle()
     populateContent()
+
+    ' Ensure initial focus goes to the RowList for navigation
+    if m.rowlist <> invalid then m.rowlist.setFocus(true)
 end sub
 
 sub setupTitle()

@@ -14,6 +14,9 @@ sub init()
     applyTheme()
     updateFromItem()
     m.top.observeField("item", "updateFromItem")
+
+    ' Default focus to Play button for quick start
+    if m.playBtn <> invalid then m.playBtn.setFocus(true)
 end sub
 
 sub applyTheme()
