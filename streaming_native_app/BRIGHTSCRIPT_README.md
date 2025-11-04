@@ -23,6 +23,9 @@ Structure:
     - neon_border_blue.png (placeholder)
     - neon_border_amber.png (placeholder)
 - fonts/ (optional)
+- test/
+  - feeds/
+    - sample-feed.json (packaged sample feed for smoke testing)
 
 Sideloading with Scripts (Recommended)
 1) Package the BrightScript app:
@@ -47,6 +50,23 @@ Manual Sideload (Alternative)
   - images/
   - fonts/ (optional)
 - Visit http://<device-ip>/, authenticate, upload the zip, and install.
+
+QA and Smoke Testing
+- A manual smoke test plan is provided at:
+  - test/smoke_test_plan.md
+- The test plan covers:
+  - Launch, Home → Details → Video navigation
+  - Playback controls (play/pause/seek, HUD show/hide)
+  - Back navigation with focus restoration
+  - Loading/Error overlays and feed failure fallback
+  - Retro visuals (Ocean Professional palette, CRT scanlines, neon accents)
+
+Sample Feed Reference
+- The app’s default configuration points to a packaged sample feed:
+  - source/config/config.brs -> AppConfig().feedUrl = "pkg:/test/feeds/sample-feed.json"
+- To switch between a remote feed and local packaged feed, update AppConfig().feedUrl accordingly:
+  - Local packaged: "pkg:/test/feeds/sample-feed.json"
+  - Remote example: "https://example.com/feed.json"
 
 Notes:
 - This BrightScript project is independent of the Qt sample and does not affect CMake builds.
