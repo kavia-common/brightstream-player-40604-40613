@@ -1,0 +1,4 @@
+{
+    "command": "cmake --build build && DISPLAY=:99  cmake --build build --target run ",
+    "working_directory": "/home/kavia/workspace/code-generation/brightstream-player-40604-40613/streaming_native_app"
+}
