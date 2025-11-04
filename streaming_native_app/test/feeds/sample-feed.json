@@ -1,0 +1,46 @@
+{
+  "rows": [
+    {
+      "title": "Featured",
+      "items": [
+        {
+          "id": "ft-1",
+          "title": "Retro Clip 1",
+          "description": "An iconic retro moment.",
+          "url": "http://example.com/video1.mp4",
+          "hdposterurl": "pkg:/images/retro-bg.png",
+          "duration": 120
+        },
+        {
+          "id": "ft-2",
+          "title": "Retro Clip 2",
+          "description": "Vintage vibes continue.",
+          "url": "http://example.com/video2.mp4",
+          "hdposterurl": "pkg:/images/retro-bg.png",
+          "duration": 95
+        }
+      ]
+    },
+    {
+      "title": "Classics",
+      "items": [
+        {
+          "id": "cl-1",
+          "title": "Classic Scene A",
+          "description": "A true classic.",
+          "url": "http://example.com/video3.mp4",
+          "hdposterurl": "pkg:/images/retro-bg.png",
+          "duration": 210
+        },
+        {
+          "id": "cl-2",
+          "title": "Classic Scene B",
+          "description": "Another legendary scene.",
+          "url": "http://example.com/video4.mp4",
+          "hdposterurl": "pkg:/images/retro-bg.png",
+          "duration": 180
+        }
+      ]
+    }
+  ]
+}

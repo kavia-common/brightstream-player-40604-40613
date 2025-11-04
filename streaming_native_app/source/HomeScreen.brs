@@ -1,58 +1,114 @@
 ' PUBLIC_INTERFACE
-' HomeScreen.brs - Displays a simple grid of items and navigates to Details on OK.
+' HomeScreen.brs - Displays rows of items from a feed and navigates to Details on OK.
 
 sub init()
     m.rowlist = m.top.findNode("rowlist")
-    m.rowlist.observeField("itemSelected", "onItemSelected")
-    m.rowlist.observeField("rowItemSelected", "onItemSelected")
+    m.titleNode = m.top.findNode("title")
+    m.statusNode = m.top.findNode("status")
+
+    if m.rowlist <> invalid then
+        m.rowlist.observeField("itemSelected", "onItemSelected")
+        m.rowlist.observeField("rowItemSelected", "onItemSelected")
+    end if
 
     setupTitle()
     setupListStyle()
-    populateContent()
+    loadFeedAsync()
 
-    ' Ensure initial focus goes to the RowList for navigation
-    if m.rowlist <> invalid then m.rowlist.setFocus(true)
+    ' Ensure initial focus goes to the RowList for navigation after content arrives.
+    ' We'll set focus in onFeedLoaded as well.
 end sub
 
 sub setupTitle()
-    t = m.top.findNode("title")
-    if m.top.theme <> invalid
+    t = m.titleNode
+    if m.top.theme <> invalid and t <> invalid
         t.color = colorToRGBA(m.top.theme.text)
-        ' Optionally prefix with accent to hint retro/brand
         t.text = "BrightStream Retro"
+    end if
+    if m.statusNode <> invalid
+        if m.top.theme <> invalid then m.statusNode.color = colorToRGBA(m.top.theme.textMuted)
+        m.statusNode.text = "Loading..."
     end if
 end sub
 
 ' Configure RowList visuals using theme tokens where possible
 sub setupListStyle()
     if m.top.theme = invalid then return
-    ' RowList exposes a few style fields in some skins; we simulate by setting focus style and spacing already in XML.
-    ' Tile visuals would ideally be a custom component; for now we rely on focus ring and background color overlays.
+    ' RowList style tweaks could be added here if supported by firmware/skin.
 end sub
 
-' Create simple stub content
-sub populateContent()
+' Attempt to load feed asynchronously using a Task running FeedService.brs.
+sub loadFeedAsync()
+    cfg = AppConfig()
+
+    m.feedTask = CreateObject("roSGNode", "Task")
+    m.feedTask.control = "stop"
+    ' Use FeedService as Task script
+    m.feedTask.script = "pkg:/source/services/FeedService.brs"
+    m.feedTask.observeField("output", "onFeedLoaded")
+    m.feedTask.observeField("error", "onFeedError")
+
+    ' Kick off with input containing desired URL (defaults inside FeedService if absent)
+    m.feedTask.input = { url: cfg.feedUrl }
+    m.feedTask.control = "run"
+end sub
+
+' Handle successful feed load
+sub onFeedLoaded()
+    if m.feedTask = invalid then return
+
+    content = m.feedTask.output
+    if content = invalid or content.getChildCount() = 0
+        ' Fallback to local stub content
+        setStatus("No feed content. Showing samples.")
+        populateFallbackContent()
+    else
+        if m.statusNode <> invalid then m.statusNode.text = ""
+        m.rowlist.content = content
+        if m.rowlist <> invalid then m.rowlist.setFocus(true)
+    end if
+end sub
+
+' Handle feed errors gracefully: show message and populate fallback
+sub onFeedError()
+    if m.feedTask = invalid then return
+    err = m.feedTask.error
+    if err = invalid then err = "Unable to load feed."
+    setStatus(err + " Showing samples.")
+    populateFallbackContent()
+end sub
+
+' Show status text
+sub setStatus(msg as string)
+    if m.statusNode <> invalid
+        m.statusNode.text = msg
+    end if
+end sub
+
+' Fallback stub content to ensure UI remains usable
+sub populateFallbackContent()
     contentRows = CreateObject("roSGNode", "ContentNode")
 
     row = CreateObject("roSGNode", "ContentNode")
-    row.title = "Featured"
+    row.title = "Samples"
 
-    for i = 1 to 10
+    for i = 1 to 8
         item = CreateObject("roSGNode", "ContentNode")
-        item.title = "Retro Clip " + i.ToStr()
+        item.title = "Sample Clip " + i.ToStr()
         item.description = "Sample description for clip " + i.ToStr()
         item.hdposterurl = "pkg:/images/retro-bg.png"
-        ' video URL is placeholder
         item.url = "http://example.com/video" + i.ToStr() + ".mp4"
         row.appendChild(item)
     end for
 
     contentRows.appendChild(row)
     m.rowlist.content = contentRows
+    if m.rowlist <> invalid then m.rowlist.setFocus(true)
 end sub
 
 ' When an item is selected with OK, navigate to details
 sub onItemSelected()
+    if m.rowlist = invalid then return
     sel = m.rowlist.rowItemSelected
     if sel = invalid then return
 

@@ -18,6 +18,18 @@
       vertAlign="center"
       color="0xFFFFFFFF" />
 
+    <!-- Error/Status -->
+    <Label
+      id="status"
+      translation="[90,120]"
+      text=""
+      font="Small"
+      width="1720"
+      height="40"
+      horizAlign="left"
+      vertAlign="center"
+      color="0xCDD4E1FF" />
+
     <!-- Simple grid using a RowList for now -->
     <RowList
       id="rowlist"
