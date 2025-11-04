@@ -4,11 +4,38 @@
     <field id="theme" type="assocarray" />
     <field id="content" type="assocarray" />
     <field id="navAction" type="assocarray" alwaysNotify="true" />
+    <!-- internal state/events from PlaybackService -->
+    <field id="playerState" type="assocarray" alwaysNotify="true" />
+    <field id="playerEvent" type="assocarray" alwaysNotify="true" />
   </interface>
 
   <children>
     <Rectangle id="backdrop" width="1920" height="1080" color="0x000000FF" />
     <Video id="player" width="1920" height="1080" />
+
+    <!-- Auto-hide HUD controls group -->
+    <Group id="hud" translation="[0,0]" visible="true">
+      <!-- HUD background bar -->
+      <Rectangle id="hudBg" width="1920" height="160" translation="[0,920]" color="0x0B1220CC" />
+
+      <!-- Title -->
+      <Label id="title" translation="[60,940]" width="1500" height="50" font="Medium" color="0xFFFFFFFF" text=""/>
+      <!-- Time -->
+      <Label id="time" translation="[1690,940]" width="170" height="50" font="Small" horizAlign="right" color="0xFFFFFFFF" text="0:00/0:00"/>
+
+      <!-- Progress bar -->
+      <Rectangle id="progressBg" width="1800" height="6" translation="[60,1015]" color="0x333C4DFF" />
+      <Rectangle id="progressFill" width="0" height="6" translation="[60,1015]" color="0xF59E0BFF" />
+
+      <!-- Transport hints -->
+      <Label id="hints" translation="[60,1040]" width="1800" height="40" font="Small" color="0xCDD4E1FF"
+             text="OK: Play/Pause   Left/Right: -/+10s   Up: Show HUD   Back: Exit" />
+    </Group>
+
+    <!-- Subtitles/Captions placeholder area (not wired yet) -->
+    <Label id="captions" translation="[60,860]" width="1800" height="40" font="Medium" color="0xFFFFFFFF" visible="false" text=""/>
+
+    <!-- Corner hint -->
     <Label id="hint" translation="[60,60]" text="Press Back to return" font="Small" color="0xFFFFFFFF" />
   </children>
 
