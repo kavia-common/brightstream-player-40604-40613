@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="BrightAppScene" extends="Scene">
+  <interface>
+    <field id="theme" type="assocarray" alwaysNotify="true" />
+    <field id="navTarget" type="string" alwaysNotify="true" />
+    <field id="selectedItem" type="assocarray" alwaysNotify="true" />
+  </interface>
+
+  <children>
+    <!-- Simple colored backdrop for retro vibe -->
+    <Rectangle
+      id="bg"
+      width="1920"
+      height="1080"
+      color="0x0e1e40FF" />
+
+    <!-- Container where screens are swapped -->
+    <Group id="contentHost" translation="[0,0]"/>
+  </children>
+
+  <script type="text/brightscript" uri="pkg:/source/AppScene.brs" />
+</component>

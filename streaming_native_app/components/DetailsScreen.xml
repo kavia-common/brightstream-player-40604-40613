@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="DetailsScreen" extends="Group">
+  <interface>
+    <field id="theme" type="assocarray" />
+    <field id="item" type="assocarray" />
+    <field id="navAction" type="assocarray" alwaysNotify="true" />
+  </interface>
+
+  <children>
+    <Poster id="poster" translation="[120,160]" width="480" height="270" />
+    <Label id="title" translation="[650,170]" width="1100" height="60" font="Large" color="0xFFFFFFFF" />
+    <Label id="desc" translation="[650,250]" width="1100" height="200" font="Medium" color="0xDDFFFFFF" numLines="5" />
+
+    <Button id="playBtn" translation="[650,520]" width="240" height="80" focusedIconUri="" text="Play" />
+    <Button id="backBtn" translation="[920,520]" width="240" height="80" focusedIconUri="" text="Back" />
+  </children>
+
+  <script type="text/brightscript" uri="pkg:/source/DetailsScreen.brs" />
+</component>

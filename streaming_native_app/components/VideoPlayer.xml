@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="VideoPlayer" extends="Group">
+  <interface>
+    <field id="theme" type="assocarray" />
+    <field id="content" type="assocarray" />
+    <field id="navAction" type="assocarray" alwaysNotify="true" />
+  </interface>
+
+  <children>
+    <Rectangle id="backdrop" width="1920" height="1080" color="0x000000FF" />
+    <Video id="player" width="1920" height="1080" />
+    <Label id="hint" translation="[60,60]" text="Press Back to return" font="Small" color="0xFFFFFFFF" />
+  </children>
+
+  <script type="text/brightscript" uri="pkg:/source/VideoPlayer.brs" />
+</component>

@@ -1,0 +1,11 @@
+# Roku Application Manifest for BrightScript project
+title=BrightStream Retro
+major_version=1
+minor_version=0
+build_version=00001
+mm_icon_focus=images/mm_icon_focus.png
+splash_screen_sd=images/splash_sd.jpg
+splash_screen_hd=images/splash_hd.jpg
+ui_resolutions=hd
+bs_libs_version=1.0
+ui_runs_profiling=false

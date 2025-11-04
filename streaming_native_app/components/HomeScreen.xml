@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="HomeScreen" extends="Group">
+  <interface>
+    <field id="theme" type="assocarray" />
+    <field id="navAction" type="assocarray" alwaysNotify="true" />
+  </interface>
+
+  <children>
+    <!-- Title Bar -->
+    <Label
+      id="title"
+      translation="[90,70]"
+      text="BrightStream Retro"
+      font="Medium"
+      width="1720"
+      height="60"
+      horizAlign="left"
+      vertAlign="center"
+      color="0xFFFFFFFF" />
+
+    <!-- Simple grid using a RowList for now -->
+    <RowList
+      id="rowlist"
+      translation="[90,160]"
+      itemSize="[300,170]"
+      itemSpacing="[30,30]"
+      numRows="2"
+      rowItemSize="[300,170]"
+      rowItemSpacing="[30,30]"
+      showRowLabel="false"
+      vertFocusAnimationStyle="floatingFocus"
+      width="1740"
+      height="820" />
+  </children>
+
+  <script type="text/brightscript" uri="pkg:/source/HomeScreen.brs" />
+</component>
