@@ -24,18 +24,29 @@ Structure:
     - neon_border_amber.png (placeholder)
 - fonts/ (optional)
 
-Running on a Roku device (sideload):
-1. Replace placeholder images in images/ with actual PNG/JPG files.
-2. Ensure content URLs in HomeScreen.brs are valid or updated.
-3. Zip the following at the root of streaming_native_app/:
-   - manifest
-   - components/
-   - source/
-   - images/
-   - fonts/ (optional)
-4. Enable Developer Mode on your Roku device.
-5. Upload the zip via the Roku Developer web interface at your device's developer portal (http://<device-ip>).
-6. Install and run.
+Sideloading with Scripts (Recommended)
+1) Package the BrightScript app:
+   cd brightstream-player-40604-40613/streaming_native_app
+   bash scripts/roku_pack.sh
+   # Output: build/roku_app.zip
+
+2) Set environment variables for your Roku Developer device:
+   export ROKU_DEV_TARGET=192.168.1.23
+   export ROKU_DEV_USERNAME=rokudev
+   export ROKU_DEV_PASSWORD='your-password'
+
+3) Sideload the package:
+   bash scripts/roku_deploy.sh build/roku_app.zip
+
+Manual Sideload (Alternative)
+- Enable Developer Mode on your Roku device.
+- Build a zip at the root with:
+  - manifest
+  - components/
+  - source/
+  - images/
+  - fonts/ (optional)
+- Visit http://<device-ip>/, authenticate, upload the zip, and install.
 
 Notes:
 - This BrightScript project is independent of the Qt sample and does not affect CMake builds.
@@ -109,3 +120,8 @@ Extending theming
 Assets
 - Replace placeholder assets under images/retro/* with production-ready files.
 - Focus ring and overlays are referenced via token URIs; ensure file names match or update tokens accordingly.
+
+Environment variables for sideload
+- ROKU_DEV_TARGET: Roku device IP/host (e.g. 192.168.1.23)
+- ROKU_DEV_USERNAME: Developer username (often rokudev)
+- ROKU_DEV_PASSWORD: Developer password
