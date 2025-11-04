@@ -1,6 +1,6 @@
 ' PUBLIC_INTERFACE
 ' DetailsScreen.brs - Shows selected item details and offers Play/Back actions.
-
+' Uses FocusHelpers for consistent key handling and retro focus visuals.
 sub init()
     m.poster = m.top.findNode("poster")
     m.title = m.top.findNode("title")
@@ -15,21 +15,50 @@ sub init()
     updateFromItem()
     m.top.observeField("item", "updateFromItem")
 
+    ' Apply retro focus visuals where possible
+    ApplyRetroFocus(m.playBtn, m.top.theme)
+    ApplyRetroFocus(m.backBtn, m.top.theme)
+
     ' Default focus to Play button for quick start
     if m.playBtn <> invalid then m.playBtn.setFocus(true)
+
+    ' Standardized key handling: Back, OK dispatch, navigation keys no-op
+    AttachStandardKeyHandler(m.top, {
+        onBack: function() as boolean
+            m.top.navAction = { target: "back" }
+            return true
+        end function
+        onOK: function() as boolean
+            ' Prefer play button behavior when focused on buttons
+            if m.playBtn <> invalid and m.playBtn.hasFocus()
+                onPlay()
+                return true
+            end if
+            ' If focus not on button, still treat OK as Play
+            onPlay()
+            return true
+        end function
+        onUp: function() as boolean : return false : end function
+        onDown: function() as boolean : return false : end function
+        onLeft: function() as boolean : return false : end function
+        onRight: function() as boolean : return false : end function
+    })
 end sub
 
 sub applyTheme()
     if m.top.theme = invalid then return
 
     ' Apply text colors and fonts
-    m.title.color = colorToRGBA(m.top.theme.text)
-    m.desc.color = colorToRGBA(m.top.theme.text)
-    m.title.font = "Large"
-    m.desc.font = "Medium"
+    if m.title <> invalid then
+        m.title.color = colorToRGBA(m.top.theme.text)
+        m.title.font = "Large"
+    end if
+    if m.desc <> invalid then
+        m.desc.color = colorToRGBA(m.top.theme.textMuted)
+        m.desc.font = "Medium"
+    end if
 
-    ' Buttons: attempt to use theme colors where possible. Native <Button> exposes limited styling;
-    ' we rely on focus ring and text for accents.
+    ' Buttons: rely on built-in focus with theme accents
     if m.playBtn <> invalid then m.playBtn.text = "Play"
     if m.backBtn <> invalid then m.backBtn.text = "Back"
 end sub

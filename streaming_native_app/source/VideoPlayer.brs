@@ -1,5 +1,6 @@
 ' PUBLIC_INTERFACE
 ' VideoPlayer.brs - Minimal player stub to prepare for future expansion.
+' Uses FocusHelpers for consistent key handling and retro focus visuals.
 
 sub init()
     m.video = m.top.findNode("player")
@@ -13,8 +14,39 @@ sub init()
     ' Default focus to the Video node so transport keys work
     if m.video <> invalid then m.video.setFocus(true)
 
-    ' Handle Back at component level too; Scene also handles it
-    m.top.observeField("keyEvent", "onKeyEvent")
+    ' Apply retro focus to highlight video focus subtly (no-op for Video)
+    ApplyRetroFocus(m.video, m.top.theme)
+
+    ' Standardized key handling for transport and back
+    AttachStandardKeyHandler(m.top, {
+        onBack: function() as boolean
+            m.top.navAction = { target: "back" }
+            return true
+        end function
+        onPlay: function() as boolean
+            if m.video <> invalid then m.video.control = "play"
+            return true
+        end function
+        onPause: function() as boolean
+            if m.video <> invalid then m.video.control = "pause"
+            return true
+        end function
+        onOK: function() as boolean
+            ' Toggle play/pause
+            if m.video = invalid then return false
+            state = m.video.state
+            if state = "playing" then
+                m.video.control = "pause"
+            else
+                m.video.control = "play"
+            end if
+            return true
+        end function
+        onUp: function() as boolean : return false : end function
+        onDown: function() as boolean : return false : end function
+        onLeft: function() as boolean : return false : end function
+        onRight: function() as boolean : return false : end function
+    })
 end sub
 
 sub applyTheme()
@@ -39,16 +71,7 @@ sub onContentChanged()
     m.video.control = "play"
 end sub
 
-' Roku will handle Back button by bubbling key events to Scene normally.
-' The parent scene can handle setting navAction=back via key handlers if needed.
-function onKeyEvent(key as string, press as boolean) as boolean
-    if not press then return false
-    if key = "back"
-        m.top.navAction = { target: "back" }
-        return true
-    end if
-    return false
-end function
+
 
 ' PUBLIC_INTERFACE
 ' Convert #RRGGBB to RGBA (opaque)

@@ -1,6 +1,6 @@
 ' PUBLIC_INTERFACE
 ' HomeScreen.brs - Displays rows of items from a feed and navigates to Details on OK.
-
+' Uses FocusHelpers for consistent key handling and retro focus visuals.
 sub init()
     m.rowlist = m.top.findNode("rowlist")
     m.titleNode = m.top.findNode("title")
@@ -15,8 +15,29 @@ sub init()
     setupListStyle()
     loadFeedAsync()
 
-    ' Ensure initial focus goes to the RowList for navigation after content arrives.
-    ' We'll set focus in onFeedLoaded as well.
+    ' Apply retro focus visuals
+    if m.rowlist <> invalid then ApplyRetroFocus(m.rowlist, m.top.theme)
+
+    ' Attach standardized key handler at component level for Back/OK fallback
+    AttachStandardKeyHandler(m.top, {
+        onBack: function() as boolean
+            ' Let scene handle back; also provide navAction for consistency
+            m.top.navAction = { target: "back" }
+            return false ' do not consume to allow scene back
+        end function
+        onOK: function() as boolean
+            ' If OK pressed and RowList has a current item, dispatch
+            if m.rowlist <> invalid then
+                onItemSelected()
+                return true
+            end if
+            return false
+        end function
+        onUp: function() as boolean : return false : end function
+        onDown: function() as boolean : return false : end function
+        onLeft: function() as boolean : return false : end function
+        onRight: function() as boolean : return false : end function
+    })
 end sub
 
 sub setupTitle()
@@ -65,7 +86,10 @@ sub onFeedLoaded()
     else
         if m.statusNode <> invalid then m.statusNode.text = ""
         m.rowlist.content = content
-        if m.rowlist <> invalid then m.rowlist.setFocus(true)
+        if m.rowlist <> invalid then
+            ApplyRetroFocus(m.rowlist, m.top.theme)
+            m.rowlist.setFocus(true)
+        end if
     end if
 end sub
 

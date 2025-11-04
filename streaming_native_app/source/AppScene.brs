@@ -14,7 +14,7 @@ sub init()
     m.current = invalid
     m.lastDetailsItem = invalid
 
-    ' Back key handling
+    ' Back key handling and global key routing
     m.top.setFocus(true)
     m.top.observeField("keyEvent", "onKeyEvent")
 
@@ -67,7 +67,12 @@ end sub
 sub pushScreen(target as string, params as object)
     ' Save current focus path if any
     if m.current <> invalid
-        m.currentFocus = getFocusedChildPath(m.current)
+        ' Use common helper if available
+        if GetInterface(m.current, "ifSGNodeField") <> invalid
+            m.currentFocus = SaveFocusPath(m.current)
+        else
+            m.currentFocus = getFocusedChildPath(m.current)
+        end if
         stackEntry = {
             key: m.current.subtype()
             node: m.current
@@ -125,7 +130,12 @@ sub popScreen()
         node = prev.node
         node.visible = true
         m.contentHost.appendChild(node)
-        restoreFocusPath(node, prev.focusPath)
+        ' Prefer common helper if present
+        if prev.focusPath <> invalid and prev.focusPath.count() > 0
+            RestoreFocusPath(node, prev.focusPath)
+        else
+            restoreFocusPath(node, prev.focusPath)
+        end if
         m.current = node
         m.currentParams = prev.params
     else
@@ -250,6 +260,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
         end if
     end if
 
+    ' Let child components handle navigation keys; scene does not consume them
     return false
 end function
 
