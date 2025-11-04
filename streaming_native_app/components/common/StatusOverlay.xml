@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="StatusOverlay" extends="Group">
+  <interface>
+    <field id="theme" type="assocarray" />
+    <field id="visible" type="boolean" />
+    <field id="mode" type="string" /> <!-- "loading" | "error" -->
+    <field id="message" type="string" />
+    <field id="retryVisible" type="boolean" />
+    <field id="onRetry" type="assocarray" /> <!-- callback container: { fire: true } observed in BRS -->
+  </interface>
+
+  <children>
+    <!-- Dim background -->
+    <Rectangle id="scrim" width="1920" height="1080" color="0x00000088" visible="true" />
+
+    <!-- Center card -->
+    <Group id="card" translation="[460,340]">
+      <Rectangle id="cardBg" width="1000" height="400" color="0x101826E6" />
+      <Label id="title" translation="[40,40]" width="920" height="60" font="Large" color="0xFFFFFFFF" text=""/>
+      <Label id="msg" translation="[40,120]" width="920" height="160" font="Medium" color="0xCDD4E1FF" text="" numLines="4"/>
+      <Button id="retryBtn" translation="[40,300]" width="200" height="70" visible="false" text="Retry" />
+    </Group>
+  </children>
+
+  <script type="text/brightscript" uri="pkg:/source/common/StatusOverlay.brs" />
+</component>

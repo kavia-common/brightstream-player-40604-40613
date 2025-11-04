@@ -12,6 +12,7 @@ sub init()
     m.progressBg = m.top.findNode("progressBg")
     m.progressFill = m.top.findNode("progressFill")
     m.captions = m.top.findNode("captions")
+    m.overlay = m.top.findNode("overlay")
 
     ' HUD auto-hide state
     m.hudVisible = true
@@ -27,6 +28,10 @@ sub init()
     m.playSvc.observeField("state", "onSvcState")
     m.playSvc.observeField("event", "onSvcEvent")
     m.playSvc.observeField("error", "onSvcError")
+
+    ' Retry state for start failures
+    m.startAttempts = 0
+    m.maxStartAttempts = 3
 
     ' Update on content changes
     m.top.observeField("content", "onContentChanged")
@@ -107,9 +112,19 @@ sub onContentChanged()
         if c.title <> invalid then m.lblTitle.text = c.title else m.lblTitle.text = ""
     end if
 
+    ' show loading overlay
+    showOverlay("loading", "Starting playback...", false)
+
     ' Inform service and start playback
     m.playSvc.content = normalizeContent(c)
+    m.startAttempts = 0
+    startPlaybackWithRetry()
+end sub
+
+sub startPlaybackWithRetry()
+    if m.playSvc = invalid then return
     m.playSvc.control = "start"
+    LogInfo("VideoPlayer: start attempt", { attempt: m.startAttempts + 1 })
 end sub
 
 function normalizeContent(c as object) as object
@@ -135,6 +150,14 @@ sub onSvcState()
     m.top.playerState = s
     updateProgressUI(s.position, s.duration)
     updateTimeLabel(s.position, s.duration)
+
+    if s.state = "playing"
+        hideOverlay()
+        LogInfo("VideoPlayer: playing")
+    else if s.state = "error"
+        LogError("VideoPlayer: state error", s)
+        onSvcError()
+    end if
 end sub
 
 sub onSvcEvent()
@@ -150,15 +173,34 @@ sub onSvcEvent()
         ' Signal up to AppScene to pop on completion
         m.top.navAction = { target: "back" }
     else if e.type = "error"
-        ' Show error subtly via hint
-        if m.hint <> invalid then m.hint.text = "Playback error. Press Back."
+        ' Show error subtly via overlay
+        showOverlay("error", "Playback error. Press Retry or Back.", true)
     end if
 end sub
 
 sub onSvcError()
     err = m.playSvc.error
-    if err = invalid then return
-    if m.hint <> invalid then m.hint.text = err
+    if err = invalid then err = "Playback error"
+    LogError("PlaybackService error", { error: err })
+
+    ' Retry up to 3 times with simple backoff (0.5s, 1s)
+    if m.startAttempts < m.maxStartAttempts
+        m.startAttempts = m.startAttempts + 1
+        backoffMs = m.startAttempts * 500
+        showOverlay("loading", "Retrying playback... (" + m.startAttempts.ToStr() + ")", false)
+        delayMs(backoffMs)
+        startPlaybackWithRetry()
+    else
+        showOverlay("error", err, true)
+        if m.overlay <> invalid then m.overlay.observeField("onRetry", "onRetryOverlay")
+    end if
+end sub
+
+sub onRetryOverlay()
+    LogInfo("VideoPlayer: retry from overlay")
+    m.startAttempts = 0
+    showOverlay("loading", "Retrying playback...", false)
+    startPlaybackWithRetry()
 end sub
 
 ' Transport helpers
@@ -253,6 +295,20 @@ function HumanizeDurationSafe(v as dynamic) as string
     return m.ToStr() + ":" + Right("0" + r.ToStr(), 2)
 end function
 
+' Overlay helpers
+sub showOverlay(mode as string, msg as string, allowRetry as boolean)
+    if m.overlay = invalid then return
+    m.overlay.theme = m.top.theme
+    m.overlay.mode = mode
+    m.overlay.message = msg
+    m.overlay.retryVisible = allowRetry
+    m.overlay.visible = true
+end sub
+
+sub hideOverlay()
+    if m.overlay <> invalid then m.overlay.visible = false
+end sub
+
 ' Utilities
 
 ' PUBLIC_INTERFACE
@@ -284,3 +340,14 @@ function GetNowMs() as integer
     ' roDateTime has second precision; multiply to ms for simple comparisons
     return CreateObject("roDateTime").AsSeconds() * 1000
 end function
+
+sub delayMs(ms as integer)
+    ' Simple delay using Timer node to avoid blocking UI too long
+    t = CreateObject("roSGNode", "Timer")
+    t.duration = ms / 1000.0
+    t.control = "start"
+    ' Wait for one fire; since we don't have a port here, approximate sleep
+    ' Note: For simplicity in this context, use a small busy-wait with time check
+    start = GetNowMs()
+    while GetNowMs() - start < ms : end while
+end sub

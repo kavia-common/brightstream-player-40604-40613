@@ -43,6 +43,9 @@
       vertFocusAnimationStyle="floatingFocus"
       width="1740"
       height="820" />
+
+    <!-- Status overlay -->
+    <StatusOverlay id="overlay" visible="false"/>
   </children>
 
   <script type="text/brightscript" uri="pkg:/source/HomeScreen.brs" />

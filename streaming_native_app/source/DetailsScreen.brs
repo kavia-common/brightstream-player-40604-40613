@@ -7,6 +7,7 @@ sub init()
     m.desc = m.top.findNode("desc")
     m.playBtn = m.top.findNode("playBtn")
     m.backBtn = m.top.findNode("backBtn")
+    m.overlay = m.top.findNode("overlay")
 
     m.playBtn.observeField("buttonSelected", "onPlay")
     m.backBtn.observeField("buttonSelected", "onBack")
@@ -65,17 +66,37 @@ end sub
 
 sub updateFromItem()
     it = m.top.item
-    if it = invalid then return
+    if it = invalid then
+        LogWarn("DetailsScreen: item invalid; showing error overlay")
+        showError("No item to display.", false)
+        return
+    end if
+    hideOverlay()
     if it.hdposterurl <> invalid then m.poster.uri = it.hdposterurl
     if it.title <> invalid then m.title.text = it.title
     if it.description <> invalid then m.desc.text = it.description
 end sub
 
+sub showError(msg as string, withRetry as boolean)
+    if m.overlay = invalid then return
+    m.overlay.theme = m.top.theme
+    m.overlay.mode = "error"
+    m.overlay.message = msg
+    m.overlay.retryVisible = withRetry
+    m.overlay.visible = true
+end sub
+
+sub hideOverlay()
+    if m.overlay <> invalid then m.overlay.visible = false
+end sub
+
 sub onPlay()
+    LogInfo("DetailsScreen: play requested")
     m.top.navAction = { target: "play", item: m.top.item }
 end sub
 
 sub onBack()
+    LogInfo("DetailsScreen: back requested")
     m.top.navAction = { target: "back" }
 end sub
 

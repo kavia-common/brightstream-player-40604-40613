@@ -16,7 +16,7 @@ sub init()
 end sub
 
 ' PUBLIC_INTERFACE
-' Triggered when input changes; loads feed and sets output or error.
+' Triggered when input changes; loads feed and sets output or error with retry/backoff.
 sub onInputChanged()
     cfg = AppConfig()
     input = m.top.input
@@ -24,12 +24,32 @@ sub onInputChanged()
     if input <> invalid and input.url <> invalid then url = input.url
     if url = invalid then url = cfg.feedUrl
 
-    result = LoadFeed(url, cfg.requestTimeoutMs)
-    if result.success
+    LogInfo("FeedService: load begin", { url: url })
+
+    maxAttempts = 3
+    attempt = 0
+    result = invalid
+    while attempt < maxAttempts
+        result = LoadFeed(url, cfg.requestTimeoutMs)
+        if result.success
+            exit while
+        end if
+        attempt = attempt + 1
+        LogWarn("FeedService: load failed; will retry", { attempt: attempt, error: result.error })
+        ' Exponential backoff: 0.5s, 1s, 2s
+        backoffMs = 500 * (2 ^ (attempt - 1))
+        sleepMs(backoffMs)
+    end while
+
+    if result <> invalid and result.success
+        LogInfo("FeedService: load success")
         m.top.output = result.contentNode
         m.top.error = ""
     else
-        m.top.error = result.error
+        errMsg = "Failed to load feed"
+        if result <> invalid and result.error <> invalid then errMsg = result.error
+        LogError("FeedService: giving up", { error: errMsg })
+        m.top.error = errMsg
         ' Return an empty content root to avoid null deref in UI
         m.top.output = CreateObject("roSGNode", "ContentNode")
     end if
@@ -68,9 +88,6 @@ function readJsonFromPkg(pkgUrl as string) as object
     end if
     text = file.ToAsciiString()
     parser = CreateObject("roJSONParser")
-    ok = invalid
-    json = invalid
-    ' roJSONParser.Parse returns assocarray/object or invalid; capture errors via Try/Catch not available, so test indirectly
     json = parser.Parse(text)
     if json = invalid
         aa.error = "Invalid JSON in: " + pkgUrl
@@ -109,3 +126,9 @@ function fetchJson(url as string, timeoutMs as integer) as object
     aa.json = json
     return aa
 end function
+
+' Sleep helper using blocking approximation (kept short)
+sub sleepMs(ms as integer)
+    start = CreateObject("roDateTime").AsSeconds() * 1000
+    while (CreateObject("roDateTime").AsSeconds() * 1000) - start < ms : end while
+end sub

@@ -13,6 +13,8 @@
 
     <Button id="playBtn" translation="[650,520]" width="240" height="80" focusedIconUri="" text="Play" />
     <Button id="backBtn" translation="[920,520]" width="240" height="80" focusedIconUri="" text="Back" />
+
+    <StatusOverlay id="overlay" visible="false"/>
   </children>
 
   <script type="text/brightscript" uri="pkg:/source/DetailsScreen.brs" />

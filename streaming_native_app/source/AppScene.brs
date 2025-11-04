@@ -65,6 +65,7 @@ end sub
 ' PUBLIC_INTERFACE
 ' Push a new screen onto the stack
 sub pushScreen(target as string, params as object)
+    LogInfo("AppScene: pushScreen", { target: target })
     ' Save current focus path if any
     if m.current <> invalid
         ' Use common helper if available

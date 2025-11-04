@@ -37,6 +37,8 @@
 
     <!-- Corner hint -->
     <Label id="hint" translation="[60,60]" text="Press Back to return" font="Small" color="0xFFFFFFFF" />
+
+    <StatusOverlay id="overlay" visible="false"/>
   </children>
 
   <script type="text/brightscript" uri="pkg:/source/VideoPlayer.brs" />

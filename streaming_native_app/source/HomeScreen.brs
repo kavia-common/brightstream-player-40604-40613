@@ -5,6 +5,7 @@ sub init()
     m.rowlist = m.top.findNode("rowlist")
     m.titleNode = m.top.findNode("title")
     m.statusNode = m.top.findNode("status")
+    m.overlay = m.top.findNode("overlay")
 
     if m.rowlist <> invalid then
         m.rowlist.observeField("itemSelected", "onItemSelected")
@@ -13,6 +14,7 @@ sub init()
 
     setupTitle()
     setupListStyle()
+    showLoading("Loading content...")
     loadFeedAsync()
 
     ' Apply retro focus visuals
@@ -48,7 +50,7 @@ sub setupTitle()
     end if
     if m.statusNode <> invalid
         if m.top.theme <> invalid then m.statusNode.color = colorToRGBA(m.top.theme.textMuted)
-        m.statusNode.text = "Loading..."
+        m.statusNode.text = ""
     end if
 end sub
 
@@ -58,9 +60,37 @@ sub setupListStyle()
     ' RowList style tweaks could be added here if supported by firmware/skin.
 end sub
 
+sub showLoading(msg as string)
+    if m.overlay <> invalid
+        m.overlay.theme = m.top.theme
+        m.overlay.mode = "loading"
+        m.overlay.message = msg
+        m.overlay.retryVisible = false
+        m.overlay.visible = true
+    end if
+end sub
+
+sub showError(msg as string, withRetry as boolean)
+    if m.overlay <> invalid
+        m.overlay.theme = m.top.theme
+        m.overlay.mode = "error"
+        m.overlay.message = msg
+        m.overlay.retryVisible = withRetry
+        m.overlay.visible = true
+        if withRetry
+            m.overlay.observeField("onRetry", "onRetryOverlay")
+        end if
+    end if
+end sub
+
+sub hideOverlay()
+    if m.overlay <> invalid then m.overlay.visible = false
+end sub
+
 ' Attempt to load feed asynchronously using a Task running FeedService.brs.
 sub loadFeedAsync()
     cfg = AppConfig()
+    LogInfo("HomeScreen: starting feed load", { url: cfg.feedUrl })
 
     m.feedTask = CreateObject("roSGNode", "Task")
     m.feedTask.control = "stop"
@@ -80,16 +110,19 @@ sub onFeedLoaded()
 
     content = m.feedTask.output
     if content = invalid or content.getChildCount() = 0
-        ' Fallback to local stub content
+        LogWarn("Feed loaded but empty; showing fallback")
         setStatus("No feed content. Showing samples.")
+        hideOverlay()
         populateFallbackContent()
     else
+        LogInfo("Feed loaded successfully")
         if m.statusNode <> invalid then m.statusNode.text = ""
         m.rowlist.content = content
         if m.rowlist <> invalid then
             ApplyRetroFocus(m.rowlist, m.top.theme)
             m.rowlist.setFocus(true)
         end if
+        hideOverlay()
     end if
 end sub
 
@@ -98,8 +131,16 @@ sub onFeedError()
     if m.feedTask = invalid then return
     err = m.feedTask.error
     if err = invalid then err = "Unable to load feed."
+    LogError("Feed error", { error: err })
     setStatus(err + " Showing samples.")
+    showError(err, true)
     populateFallbackContent()
+end sub
+
+sub onRetryOverlay()
+    LogInfo("Retry requested from overlay")
+    showLoading("Retrying...")
+    loadFeedAsync()
 end sub
 
 ' Show status text
@@ -144,6 +185,7 @@ sub onItemSelected()
     item = row.getChild(itemIndex)
     if item = invalid then return
 
+    LogDebug("Navigating to details", { index: itemIndex })
     m.top.navAction = { target: "details", item: {
         title: item.title
         description: item.description
