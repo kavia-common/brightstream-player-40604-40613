@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="RetroTheme" extends="Node">
+  <interface>
+    <field id="tokens" type="assocarray" alwaysNotify="true" />
+  </interface>
+
+  <script type="text/brightscript" uri="pkg:/source/Theme.brs" />
+
+  <children>
+    <!-- Visual focus assets can be referenced by other components if needed -->
+    <Poster id="focusRing" uri="pkg:/images/focus-ring.png" visible="false" />
+    <!-- Retro overlays and borders -->
+    <Poster id="scanlineOverlay" uri="pkg:/images/retro/scanline_overlay.png" visible="false" />
+    <Poster id="neonBorderBlue" uri="pkg:/images/retro/neon_border_blue.png" visible="false" />
+    <Poster id="neonBorderAmber" uri="pkg:/images/retro/neon_border_amber.png" visible="false" />
+  </children>
+</component>

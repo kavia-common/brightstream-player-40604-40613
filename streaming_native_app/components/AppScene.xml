@@ -7,12 +7,18 @@
   </interface>
 
   <children>
-    <!-- Simple colored backdrop for retro vibe -->
+    <!-- Theme provider -->
+    <RetroTheme id="retroTheme" />
+
+    <!-- Backdrop uses theme background -->
     <Rectangle
       id="bg"
       width="1920"
       height="1080"
       color="0x0e1e40FF" />
+
+    <!-- Optional: retro scanline overlay (hidden by default, toggled in BRS) -->
+    <Poster id="scanlines" uri="pkg:/images/retro/scanline_overlay.png" translation="[0,0]" width="1920" height="1080" visible="false" />
 
     <!-- Container where screens are swapped -->
     <Group id="contentHost" translation="[0,0]"/>

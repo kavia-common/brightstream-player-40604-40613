@@ -9,13 +9,19 @@ Structure:
   - HomeScreen.xml
   - DetailsScreen.xml
   - VideoPlayer.xml
+  - Theme.xml            (RetroTheme: tokens and visuals)
 - source/
   - main.brs
   - AppScene.brs
   - HomeScreen.brs
   - DetailsScreen.brs
   - VideoPlayer.brs
+  - Theme.brs            (RetroTheme logic)
 - images/ (placeholder assets)
+  - retro/
+    - scanline_overlay.png (placeholder)
+    - neon_border_blue.png (placeholder)
+    - neon_border_amber.png (placeholder)
 - fonts/ (optional)
 
 Running on a Roku device (sideload):
@@ -33,4 +39,5 @@ Running on a Roku device (sideload):
 
 Notes:
 - This BrightScript project is independent of the Qt sample and does not affect CMake builds.
-- Theme colors can be adjusted in source/AppScene.brs (setupTheme()).
+- Theme colors and tokens are centralized in components/Theme.xml and source/Theme.brs.
+- AppScene instantiates RetroTheme and passes theme tokens to screens.

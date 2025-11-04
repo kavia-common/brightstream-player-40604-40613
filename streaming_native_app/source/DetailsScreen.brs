@@ -18,8 +18,17 @@ end sub
 
 sub applyTheme()
     if m.top.theme = invalid then return
+
+    ' Apply text colors and fonts
     m.title.color = colorToRGBA(m.top.theme.text)
     m.desc.color = colorToRGBA(m.top.theme.text)
+    m.title.font = "Large"
+    m.desc.font = "Medium"
+
+    ' Buttons: attempt to use theme colors where possible. Native <Button> exposes limited styling;
+    ' we rely on focus ring and text for accents.
+    if m.playBtn <> invalid then m.playBtn.text = "Play"
+    if m.backBtn <> invalid then m.backBtn.text = "Back"
 end sub
 
 sub updateFromItem()

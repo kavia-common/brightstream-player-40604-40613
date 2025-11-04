@@ -3,25 +3,50 @@
 
 sub init()
     m.top.backgroundURI = ""
-    setupTheme()
+
+    m.themeNode = m.top.findNode("retroTheme")
+    m.bg = m.top.findNode("bg")
+    m.scanlines = m.top.findNode("scanlines")
     m.contentHost = m.top.findNode("contentHost")
+
+    setupTheme()
+    applySceneTheme()
 
     ' Start at HomeScreen
     showHomeScreen()
 end sub
 
-' Set a default theme inspired by the Ocean Professional scheme with amber accents
+' Initialize theme tokens from RetroTheme and expose as assocarray on scene for children
 sub setupTheme()
-    themeAA = {
-        primary: "#2563EB"
-        secondary: "#F59E0B"
-        success: "#F59E0B"
-        error: "#EF4444"
-        background: "#0e1e40"
-        surface: "#101826"
-        text: "#ffffff"
-    }
-    m.top.theme = themeAA
+    if m.themeNode <> invalid
+        m.top.theme = m.themeNode.tokens()
+    else
+        ' Fallback directly if theme node missing
+        m.top.theme = {
+            primary: "#2563EB"
+            secondary: "#F59E0B"
+            success: "#F59E0B"
+            error: "#EF4444"
+            background: "#0E1E40"
+            surface: "#101826"
+            text: "#FFFFFF"
+            textMuted: "#CDD4E1"
+            buttonBg: "#2563EB"
+            buttonBgFocus: "#F59E0B"
+            buttonText: "#FFFFFF"
+        }
+    end if
+end sub
+
+' Apply scene-level visuals based on theme (bg color, optional overlays)
+sub applySceneTheme()
+    if m.top.theme <> invalid
+        bgHex = m.top.theme.background
+        m.bg.color = colorToRGBA(bgHex)
+    end if
+
+    ' Optionally enable scanlines for the retro vibe
+    if m.scanlines <> invalid then m.scanlines.visible = true
 end sub
 
 ' PUBLIC_INTERFACE
@@ -105,3 +130,16 @@ sub clearHost()
         n.removeNode()
     end for
 end sub
+
+' PUBLIC_INTERFACE
+' Convert #RRGGBB to RGBA (opaque)
+function colorToRGBA(hex as string) as integer
+    if hex = invalid then return &hFFFFFFFF
+    if left(hex, 1) = "#"
+        r = val("&h" + mid(hex, 2, 2))
+        g = val("&h" + mid(hex, 4, 2))
+        b = val("&h" + mid(hex, 6, 2))
+        return (r << 24) + (g << 16) + (b << 8) + &hFF
+    end if
+    return &hFFFFFFFF
+end function

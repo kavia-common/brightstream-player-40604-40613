@@ -3,7 +3,18 @@
 
 sub init()
     m.video = m.top.findNode("player")
+    m.backdrop = m.top.findNode("backdrop")
+    m.hint = m.top.findNode("hint")
+
+    applyTheme()
+
     m.top.observeField("content", "onContentChanged")
+end sub
+
+sub applyTheme()
+    if m.top.theme = invalid then return
+    if m.backdrop <> invalid then m.backdrop.color = colorToRGBA(m.top.theme.background)
+    if m.hint <> invalid then m.hint.color = colorToRGBA(m.top.theme.text)
 end sub
 
 sub onContentChanged()
@@ -24,3 +35,16 @@ end sub
 
 ' Roku will handle Back button by bubbling key events to Scene normally.
 ' The parent scene can handle setting navAction=back via key handlers if needed.
+
+' PUBLIC_INTERFACE
+' Convert #RRGGBB to RGBA (opaque)
+function colorToRGBA(hex as string) as integer
+    if hex = invalid then return &hFFFFFFFF
+    if left(hex, 1) = "#"
+        r = val("&h" + mid(hex, 2, 2))
+        g = val("&h" + mid(hex, 4, 2))
+        b = val("&h" + mid(hex, 6, 2))
+        return (r << 24) + (g << 16) + (b << 8) + &hFF
+    end if
+    return &hFFFFFFFF
+end function

@@ -7,6 +7,7 @@ sub init()
     m.rowlist.observeField("rowItemSelected", "onItemSelected")
 
     setupTitle()
+    setupListStyle()
     populateContent()
 end sub
 
@@ -14,7 +15,16 @@ sub setupTitle()
     t = m.top.findNode("title")
     if m.top.theme <> invalid
         t.color = colorToRGBA(m.top.theme.text)
+        ' Optionally prefix with accent to hint retro/brand
+        t.text = "BrightStream Retro"
     end if
+end sub
+
+' Configure RowList visuals using theme tokens where possible
+sub setupListStyle()
+    if m.top.theme = invalid then return
+    ' RowList exposes a few style fields in some skins; we simulate by setting focus style and spacing already in XML.
+    ' Tile visuals would ideally be a custom component; for now we rely on focus ring and background color overlays.
 end sub
 
 ' Create simple stub content
