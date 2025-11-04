@@ -1,52 +1,98 @@
 ' PUBLIC_INTERFACE
 ' RetroTheme - Theme provider with Ocean Professional palette and retro visuals.
 ' Provides:
-' - tokens(): assocarray of color/font constants
+' - tokens(): assocarray of color/font/visual tokens that map the Ocean Professional palette:
+'     primary=#2563EB, secondary/success=#F59E0B, error=#EF4444, text=#111827 (used as base for light contexts),
+'     plus dark-scene overrides suited to TV UIs (background/surface).
+'   Retro aliases:
+'     accent -> primary
+'     neon   -> secondary
+'     focusRingColor -> secondary
+'     crtOverlayEnabled -> enableCRTvfx field on component
+'     neonBordersEnabled -> enableNeonBorders field on component
+'     focusRingAsset -> pkg:/images/focus-ring.png
+'     neonBorderBlueAsset/neonBorderAmberAsset/scanlineAsset -> asset URIs
 ' - getColor(name): integer RGBA for a named token
 ' - getFont(name): string font face key (for Label font attribute)
 ' - hexToRGBA(hex): helper conversion
+'
+' The tokens AA is safe to pass down to any component via the "theme" field.
 
 sub init()
-    ' Default tokens aligning with Ocean Professional palette and retro vibe
-    m.top.tokens = {
-        name: "Ocean Professional Retro"
-        description: "Blue primary with amber accents; retro scanlines and neon borders"
-
-        ' Core colors (hex strings)
-        primary: "#2563EB"         ' blue-600
-        primaryLight: "#60A5FA"    ' blue-400
-        secondary: "#F59E0B"       ' amber-500
-        secondaryLight: "#FBBF24"  ' amber-400
-        background: "#0E1E40"      ' deep ocean
-        surface: "#101826"         ' near black-blue
-        text: "#FFFFFF"
-        textMuted: "#CDD4E1"
-        success: "#F59E0B"         ' stylistic success to match amber
+    ' Build token set from Ocean Professional with retro extensions.
+    ' Note: We prefer a dark TV background/surface while keeping the palette mappings true.
+    ocean = {
+        primary: "#2563EB"      ' Ocean Professional primary
+        secondary: "#F59E0B"    ' Secondary + success
+        success: "#F59E0B"
         error: "#EF4444"
+        textBase: "#111827"     ' Tailwind gray-900; used when on light backgrounds
+        background: "#0E1E40"   ' Deep ocean for TV-safe background
+        surface: "#101826"      ' Near-black blue surface
+        textOnDark: "#FFFFFF"
+        textMutedOnDark: "#CDD4E1"
+        primaryLight: "#60A5FA"
+        secondaryLight: "#FBBF24"
+    }
 
-        ' Focus colors
-        focusGlow: "#60A5FA"
-        focusRing: "#F59E0B"
+    ' Respect component toggles when composing tokens
+    crtEnabled = true
+    neonEnabled = true
+    if m.top.enableCRTvfx <> invalid then crtEnabled = m.top.enableCRTvfx
+    if m.top.enableNeonBorders <> invalid then neonEnabled = m.top.enableNeonBorders
 
-        ' Button tokens
-        buttonBg: "#2563EB"
-        buttonBgFocus: "#F59E0B"
-        buttonText: "#FFFFFF"
+    m.top.tokens = {
+        name: "Ocean Professional Retro",
+        description: "Ocean Professional mapped to retro tokens with optional CRT overlay and neon borders",
 
-        ' RowList/Tile tokens
-        tileBg: "#101826"
-        tileBgFocus: "#16243B"
-        tileBorder: "#1F2A44"
-        tileBorderFocus: "#F59E0B"
+        ' Core palette mappings
+        primary: ocean.primary,
+        primaryLight: ocean.primaryLight,
+        secondary: ocean.secondary,
+        secondaryLight: ocean.secondaryLight,
+        success: ocean.success,
+        error: ocean.error,
 
-        ' Overlay / HUD
-        hudBg: "#0B1220"
-        hudText: "#FFFFFF"
+        ' Scene/background
+        background: ocean.background,
+        surface: ocean.surface,
 
-        ' Fonts (Label font face keys; keep to Roku standard faces)
-        fontSmall: "Small"
-        fontMedium: "Medium"
-        fontLarge: "Large"
+        ' Text for TV dark backgrounds
+        text: ocean.textOnDark,
+        textMuted: ocean.textMutedOnDark,
+
+        ' Retro aliases for consumers
+        accent: ocean.primary,                 ' PUBLIC retro alias
+        neon: ocean.secondary,                 ' PUBLIC retro alias
+        focusRingColor: ocean.secondary,       ' PUBLIC retro alias for ring color
+
+        ' Buttons
+        buttonBg: ocean.primary,
+        buttonBgFocus: ocean.secondary,
+        buttonText: "#FFFFFF",
+
+        ' Tiles
+        tileBg: ocean.surface,
+        tileBgFocus: "#16243B",
+        tileBorder: "#1F2A44",
+        tileBorderFocus: ocean.secondary,
+
+        ' HUD/Overlay
+        hudBg: "#0B1220",
+        hudText: "#FFFFFF",
+
+        ' Fonts
+        fontSmall: "Small",
+        fontMedium: "Medium",
+        fontLarge: "Large",
+
+        ' Retro assets and toggles (PUBLIC retro tokens)
+        focusRingAsset: "pkg:/images/focus-ring.png",
+        neonBorderBlueAsset: "pkg:/images/retro/neon_border_blue.png",
+        neonBorderAmberAsset: "pkg:/images/retro/neon_border_amber.png",
+        scanlineAsset: "pkg:/images/retro/scanline_overlay.png",
+        crtOverlayEnabled: crtEnabled,
+        neonBordersEnabled: neonEnabled
     }
 end sub
 
